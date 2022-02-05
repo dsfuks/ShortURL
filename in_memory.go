@@ -23,7 +23,6 @@ func NewMemoryStorage() *MemoryStorage {
 
 func (s *MemoryStorage) Insert(e URL) {
 	var shLink URL
-	//log.Println(s.data)
 	if _, ok := s.data[e]; !ok {
 		b := make([]rune, 10)
 		rand.Seed(time.Now().UnixNano())
@@ -36,8 +35,6 @@ func (s *MemoryStorage) Insert(e URL) {
 }
 
 func (s *MemoryStorage) Get(e URL) (URL, error) {
-	//var lngLink URL
-	//log.Println(reverseMap(s.data))
 	if val, ok := reverseMap(s.data)[e]; ok {
 		return val, nil
 	}

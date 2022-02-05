@@ -2,34 +2,37 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"log"
+	"math/rand"
+	"time"
 )
 
 const (
-	psqlInfo = "host=host port=8080 user=postgres password=1 " +
-		"dbname=postgres sslmode=disable"
+	psqlInfo = "host=localhost port=8080 user=postgres password=1 " +
+		"dbname=short sslmode=disable"
 	driverName = "postgres"
 )
 
-func Insert(c *gin.Context) {
-	db, err := sql.Open(driverName, psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
+type DBStorage struct {
+	data *sql.DB
+	err  error
+}
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
+func NewDBStorage() *DBStorage {
+	var DB DBStorage
+	DB.data, DB.err = sql.Open(driverName, psqlInfo)
+	return &DB
+}
+func (s *DBStorage) Insert(e string) {
+	b := make([]rune, 10)
+	rand.Seed(time.Now().UnixNano())
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
 	}
-	result, err := db.Exec("insert into shurl (shortURL, longURL) values ($1, $2)",
-		"short", "long")
+	_, err := s.data.Exec("insert into shurl (shorturl,longurl) values ($1, $2)",
+		string(b), e)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
-	fmt.Println(result.LastInsertId()) // не поддерживается
-	fmt.Println(result.RowsAffected()) // количество добавленных строк
-	fmt.Println("Successfully connected!")
 }
