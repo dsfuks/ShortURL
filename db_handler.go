@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -15,8 +17,13 @@ func NewDbHandler(db DBStorage) *DbHandler {
 }
 func (h *DbHandler) CreateURL(c *gin.Context) {
 	longURL := c.Param("url")
-	h.storage.Insert(longURL)
-	rows, _ := h.storage.data.Query("select * from shurl where longurl = $1",
+	_, err := h.storage.data.Query("select * from shurl where longurl = $1",
+		longURL)
+	if errors.Is(err, sql.ErrNoRows) {
+		h.storage.Insert(longURL)
+	}
+
+	rows, err := h.storage.data.Query("select * from shurl where longurl = $1",
 		longURL)
 	var shortURL string
 	for rows.Next() {

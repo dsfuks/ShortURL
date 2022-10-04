@@ -30,9 +30,14 @@ func (s *DBStorage) Insert(e string) {
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
-	_, err := s.data.Exec("insert into shurl (shorturl,longurl) values ($1, $2)",
-		string(b), e)
+	_, err := s.data.Exec(query, string(b), e)
 	if err != nil {
 		log.Println(err)
 	}
 }
+
+const query = `
+	insert into shurl (shorturl,longurl) values ($1, $2) 
+	on conflict (shorturl) do update 
+	set shorturl = excluded.shorturl,
+		longurl = excluded.longurl`

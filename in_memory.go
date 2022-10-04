@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -12,6 +13,7 @@ type URL struct {
 	Value string `json:"value"`
 }
 type MemoryStorage struct {
+	mu   sync.Mutex
 	data map[URL]URL
 }
 
@@ -30,7 +32,10 @@ func (s *MemoryStorage) Insert(e URL) {
 			b[i] = letters[rand.Intn(len(letters))]
 		}
 		shLink.Value = string(b)
+
+		s.mu.Lock()
 		s.data[e] = shLink
+		s.mu.Unlock()
 	}
 }
 
